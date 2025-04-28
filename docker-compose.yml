@@ -1,17 +1,32 @@
+version: '3.8'
+
 services:
-  mysql-db:
-    image: mysql:10
-    container_name: mysql-db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+  h2-database:
+    image: oscarfonts/h2
+    container_name: h2-database
     ports:
-      - "3307:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      retries: 10
-      timeout: 5s
+      - "9092:9092"   # Port for H2 TCP connections
+      - "8082:8082"   # Port for H2 Console (web UI)
+    environment:
+      H2_OPTIONS: "-tcp -tcpAllowOthers -web -webAllowOthers -ifNotExists"
+    networks:
+      - springboot-network
+
+  springboot-app:
+    image: b2c-payment-gateway:latest
+    container_name: springboot-app
+    depends_on:
+      - h2-database
+    ports:
+      - "8080:8080"  # Your Spring Boot app port
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://h2-database:9092/~/testdb
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_H2_CONSOLE_ENABLED: "true"
+    networks:
+      - springboot-network
+
+networks:
+  springboot-network:
+    driver: bridge
