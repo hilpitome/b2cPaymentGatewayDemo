@@ -44,4 +44,11 @@ public class PaymentController {
     public ResponseEntity<ApiResponseDTO<String>> checkBySenderAndReceiver(@PathVariable String sendoNo, @PathVariable String receiverNo) {
         return null;
     }
+
+    @GetMapping("payment/callback")
+    public ResponseEntity<ApiResponseDTO<String>> paymentGatWayCallBack(@PathVariable String sendoNo, @PathVariable String receiverNo) {
+        return null;
+    }
+
+
 }
